@@ -2,7 +2,6 @@ package model
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 )
 
@@ -15,13 +14,13 @@ type Task struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func GetTaskRow(db *sql.DB) (*Task, error) {
-	defer db.Close()
+func GetTasks(db *sql.DB) ([]*Task, error) {
 	var task Task
+	var tasks []*Task
 	var createdDatetime string
 	var updateDatetime string
 
-	err := db.QueryRow(`
+	rows, err := db.Query(`
       SELECT 
         id,                               
         uuid, 
@@ -29,24 +28,34 @@ func GetTaskRow(db *sql.DB) (*Task, error) {
         detail, 
         created_at, 
         updated_at 
-       from tasks`).Scan(
-		&(task.Id),
-		&(task.UUID),
-		&(task.Title),
-		&(task.Detail),
-		&createdDatetime,
-		&updateDatetime)
+       from tasks`)
+
 	if err != nil {
 		return nil, err
 	}
-	task.CreatedAt, err = time.Parse("2006-01-02 15:04:05", createdDatetime) // 日時はこの日付じゃないといけない
-	if err != nil {
-		fmt.Println(err)
-	}
-	task.UpdatedAt, err = time.Parse("2006-01-02 15:04:05", updateDatetime) // 日時はこの日付じゃないといけない
-	if err != nil {
-		fmt.Println(err)
+	for rows.Next() {
+		err := rows.Scan(
+			&(task.Id),
+			&(task.UUID),
+			&(task.Title),
+			&(task.Detail),
+			&createdDatetime,
+			&updateDatetime)
+
+		if err != nil {
+			return nil, err
+		}
+
+		task.CreatedAt, err = time.Parse("2006-01-02 15:04:05", createdDatetime) // 日時はこの日付じゃないといけない
+		if err != nil {
+			return nil, err
+		}
+		task.UpdatedAt, err = time.Parse("2006-01-02 15:04:05", updateDatetime) // 日時はこの日付じゃないといけない
+		if err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, &task)
 	}
 
-	return &task, nil
+	return tasks, nil
 }

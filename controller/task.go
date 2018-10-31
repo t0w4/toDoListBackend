@@ -1,29 +1,24 @@
 package controller
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"toDoListBackend/db"
 	"toDoListBackend/model"
+	"toDoListBackend/view"
 )
 
 func TaskHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := db.Init()
+	defer conn.Close()
 	if err != nil {
 		fmt.Fprintln(w, err)
 		return
 	}
-	task, err := model.GetTaskRow(conn)
+	tasks, err := model.GetTasks(conn)
 	if err != nil {
 		fmt.Fprintln(w, err)
 		return
 	}
-	s, err := json.Marshal(task)
-	if err != nil {
-		fmt.Fprintln(w, err)
-		return
-	}
-	fmt.Fprintln(w, string(s))
-	return
+	view.RenderTasks(w, tasks)
 }
