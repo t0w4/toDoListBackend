@@ -6,10 +6,11 @@ import (
 )
 
 type Task struct {
-	Id        int       `json:"id"`
+	ID        int       `json:"id"`
 	UUID      string    `json:"uuid"`
 	Title     string    `json:"title"`
 	Detail    string    `json:"detail"`
+	Status    string    `json:"status"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -23,6 +24,7 @@ func GetTasks(db *sql.DB) ([]*Task, error) {
         uuid, 
         title, 
         detail, 
+        status,
         created_at, 
         updated_at 
        from tasks`)
@@ -35,10 +37,11 @@ func GetTasks(db *sql.DB) ([]*Task, error) {
 		var createdDatetime string
 		var updateDatetime string
 		err := rows.Scan(
-			&(task.Id),
+			&(task.ID),
 			&(task.UUID),
 			&(task.Title),
 			&(task.Detail),
+			&(task.Status),
 			&createdDatetime,
 			&updateDatetime)
 
