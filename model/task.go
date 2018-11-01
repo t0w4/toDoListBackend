@@ -15,10 +15,7 @@ type Task struct {
 }
 
 func GetTasks(db *sql.DB) ([]*Task, error) {
-	var task Task
 	var tasks []*Task
-	var createdDatetime string
-	var updateDatetime string
 
 	rows, err := db.Query(`
       SELECT 
@@ -34,6 +31,9 @@ func GetTasks(db *sql.DB) ([]*Task, error) {
 		return nil, err
 	}
 	for rows.Next() {
+		var task Task
+		var createdDatetime string
+		var updateDatetime string
 		err := rows.Scan(
 			&(task.Id),
 			&(task.UUID),
