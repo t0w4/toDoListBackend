@@ -16,3 +16,10 @@ func RendorInternalServerError(w http.ResponseWriter, statusCode int, messages [
 	enc := json.NewEncoder(w)
 	enc.Encode(&internalServerErrorResponse{Status: "internal server error", ErrorMessages: messages})
 }
+
+func RendorBadRequest(w http.ResponseWriter, messages []string) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusBadRequest)
+	enc := json.NewEncoder(w)
+	enc.Encode(&internalServerErrorResponse{Status: "bad request", ErrorMessages: messages})
+}
