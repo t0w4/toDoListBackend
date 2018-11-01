@@ -20,6 +20,5 @@ func TaskHandler(w http.ResponseWriter, r *http.Request) {
 		view.RendorInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("get tasks error: %v", err)})
 		return
 	}
-	fmt.Println(tasks)
 	view.RenderTasks(w, tasks)
 }
