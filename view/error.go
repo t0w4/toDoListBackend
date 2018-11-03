@@ -10,14 +10,14 @@ type internalServerErrorResponse struct {
 	ErrorMessages []string `json:"error_messages"`
 }
 
-func RendorInternalServerError(w http.ResponseWriter, statusCode int, messages []string) {
+func RenderInternalServerError(w http.ResponseWriter, statusCode int, messages []string) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(statusCode)
 	enc := json.NewEncoder(w)
 	enc.Encode(&internalServerErrorResponse{Status: "internal server error", ErrorMessages: messages})
 }
 
-func RendorBadRequest(w http.ResponseWriter, messages []string) {
+func RenderBadRequest(w http.ResponseWriter, messages []string) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusBadRequest)
 	enc := json.NewEncoder(w)
