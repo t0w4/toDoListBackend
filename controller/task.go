@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -14,24 +13,14 @@ import (
 	"github.com/google/uuid"
 )
 
-func TaskHandler(w http.ResponseWriter, r *http.Request) {
+func GetTasks(w http.ResponseWriter, r *http.Request) {
 	conn, err := db.Init()
 	if err != nil {
 		view.RendorInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("db connect error: %v", err)})
 		return
 	}
 	defer conn.Close()
-	if r.Method == http.MethodGet {
-		index(w, conn)
-		return
-	}
-	if r.Method == http.MethodPost {
-		create(w, r, conn)
-		return
-	}
-}
 
-func index(w http.ResponseWriter, conn *sql.DB) {
 	tasks, err := model.GetTasks(conn)
 	if err != nil {
 		view.RendorInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("get tasks error: %v", err)})
@@ -40,7 +29,14 @@ func index(w http.ResponseWriter, conn *sql.DB) {
 	view.RenderTasks(w, tasks)
 }
 
-func create(w http.ResponseWriter, r *http.Request, conn *sql.DB) {
+func CreateTask(w http.ResponseWriter, r *http.Request) {
+	conn, err := db.Init()
+	if err != nil {
+		view.RendorInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("db connect error: %v", err)})
+		return
+	}
+	defer conn.Close()
+
 	var task model.Task
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
