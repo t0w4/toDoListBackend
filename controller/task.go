@@ -20,6 +20,7 @@ func GetTasks(w http.ResponseWriter, r *http.Request) {
 	view.RenderTasks(w, tasks)
 }
 
+// TODO: add record exists check(404)
 func GetTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	task, err := model.GetTask(params["uuid"])
@@ -57,6 +58,7 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 	view.RenderTask(w, createdTask, http.StatusCreated)
 }
 
+// TODO: add record exists check(404)
 func PutTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	taskUUID := params["uuid"]
@@ -87,6 +89,7 @@ func PutTask(w http.ResponseWriter, r *http.Request) {
 	view.RenderTask(w, updatedTask, http.StatusOK)
 }
 
+// TODO: add record exists check(404)
 func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	taskUUID := params["uuid"]
