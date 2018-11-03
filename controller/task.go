@@ -5,12 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
 	"toDoListBackend/db"
 	"toDoListBackend/model"
 	"toDoListBackend/view"
-
-	"github.com/google/uuid"
 )
 
 func GetTasks(w http.ResponseWriter, r *http.Request) {
@@ -43,24 +40,14 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 		view.RendorBadRequest(w, []string{fmt.Sprintf("read post body error: %v", err)})
 		return
 	}
-	json.Unmarshal(body, &task)
 
-	_, err = conn.Exec(
-		`INSERT INTO tasks (
-                                   uuid, 
-                                   title, 
-                                   detail, 
-                                   status,
-                                   created_at,
-                                   updated_at
-                                   ) VALUES (?, ?, ?, ?, ?, ?) `,
-		uuid.New(),
-		task.Title,
-		task.Detail,
-		task.Status,
-		time.Now(),
-		time.Now(),
-	)
+	err = json.Unmarshal(body, &task)
+	if err != nil {
+		view.RendorInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("json parse error: %v", err)})
+		return
+	}
+
+	err = model.CreateTask(conn, &task)
 	if err != nil {
 		view.RendorInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("create task error: %v", err)})
 		return

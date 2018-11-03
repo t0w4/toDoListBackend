@@ -3,6 +3,8 @@ package model
 import (
 	"database/sql"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Task struct {
@@ -61,4 +63,27 @@ func GetTasks(db *sql.DB) ([]*Task, error) {
 	}
 
 	return tasks, nil
+}
+
+func CreateTask(db *sql.DB, task *Task) error {
+	_, err := db.Exec(
+		`INSERT INTO tasks (
+                                   uuid, 
+                                   title, 
+                                   detail, 
+                                   status,
+                                   created_at,
+                                   updated_at
+                                   ) VALUES (?, ?, ?, ?, ?, ?) `,
+		uuid.New(),
+		task.Title,
+		task.Detail,
+		task.Status,
+		time.Now(),
+		time.Now(),
+	)
+	if err != nil {
+		return err
+	}
+	return nil
 }
