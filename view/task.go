@@ -14,6 +14,7 @@ type tasksResponse struct {
 
 func RenderTasks(w http.ResponseWriter, tasks []*model.Task) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
 	s, err := json.Marshal(tasksResponse{Total: len(tasks), Tasks: tasks})
 	if err != nil {
 		RenderInternalServerError(w, 500, []string{"cant't encode tasks response json"})
@@ -22,8 +23,9 @@ func RenderTasks(w http.ResponseWriter, tasks []*model.Task) {
 	fmt.Fprintln(w, string(s))
 }
 
-func RenderTask(w http.ResponseWriter, task *model.Task) {
+func RenderTask(w http.ResponseWriter, task *model.Task, statusCode int) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(statusCode)
 	s, err := json.Marshal(task)
 	if err != nil {
 		RenderInternalServerError(w, 500, []string{"cant't encode task response json"})

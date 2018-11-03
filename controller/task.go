@@ -27,7 +27,7 @@ func GetTask(w http.ResponseWriter, r *http.Request) {
 		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("get tasks error: %v", err)})
 		return
 	}
-	view.RenderTask(w, task)
+	view.RenderTask(w, task, http.StatusOK)
 }
 
 func CreateTask(w http.ResponseWriter, r *http.Request) {
@@ -44,10 +44,15 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = model.CreateTask(&task)
+	insertID, err := model.CreateTask(&task)
 	if err != nil {
 		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("create task error: %v", err)})
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+	createdTask, err := model.GetTaskByID(insertID)
+	if err != nil {
+		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("get task error: %v", err)})
+		return
+	}
+	view.RenderTask(w, createdTask, http.StatusCreated)
 }

@@ -72,7 +72,7 @@ func GetTasks() ([]*Task, error) {
 	return tasks, nil
 }
 
-func GetTask(taskID string) (*Task, error) {
+func GetTask(taskUUID string) (*Task, error) {
 	conn, err := db.Init()
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func GetTask(taskID string) (*Task, error) {
         updated_at 
        from tasks
        where uuid = ?`,
-		taskID).Scan(
+		taskUUID).Scan(
 		&(task.ID),
 		&(task.UUID),
 		&(task.Title),
@@ -119,13 +119,13 @@ func GetTask(taskID string) (*Task, error) {
 	return &task, nil
 }
 
-func CreateTask(task *Task) error {
+func CreateTask(task *Task) (int64, error) {
 	conn, err := db.Init()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer conn.Close()
-	_, err = conn.Exec(
+	result, err := conn.Exec(
 		`INSERT INTO tasks (
                                    uuid, 
                                    title, 
@@ -142,7 +142,58 @@ func CreateTask(task *Task) error {
 		time.Now(),
 	)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	lastInsertID, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return lastInsertID, nil
+}
+
+func GetTaskByID(taskID int64) (*Task, error) {
+	conn, err := db.Init()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	var task Task
+	var createdDatetime string
+	var updateDatetime string
+
+	err = conn.QueryRow(`
+      SELECT 
+        id,                               
+        uuid, 
+        title, 
+        detail, 
+        status,
+        created_at, 
+        updated_at 
+       from tasks
+       where id = ?`,
+		taskID).Scan(
+		&(task.ID),
+		&(task.UUID),
+		&(task.Title),
+		&(task.Detail),
+		&(task.Status),
+		&createdDatetime,
+		&updateDatetime,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	task.CreatedAt, err = time.Parse("2006-01-02 15:04:05", createdDatetime) // 日時はこの日付じゃないといけない
+	if err != nil {
+		return nil, err
+	}
+	task.UpdatedAt, err = time.Parse("2006-01-02 15:04:05", updateDatetime) // 日時はこの日付じゃないといけない
+	if err != nil {
+		return nil, err
+	}
+
+	return &task, nil
 }
