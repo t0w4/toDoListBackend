@@ -1,8 +1,9 @@
 package model
 
 import (
-	"database/sql"
 	"time"
+
+	"toDoListBackend/db"
 
 	"github.com/google/uuid"
 )
@@ -17,10 +18,16 @@ type Task struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func GetTasks(db *sql.DB) ([]*Task, error) {
+func GetTasks() ([]*Task, error) {
+	conn, err := db.Init()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
 	var tasks []*Task
 
-	rows, err := db.Query(`
+	rows, err := conn.Query(`
       SELECT 
         id,                               
         uuid, 
@@ -65,8 +72,13 @@ func GetTasks(db *sql.DB) ([]*Task, error) {
 	return tasks, nil
 }
 
-func CreateTask(db *sql.DB, task *Task) error {
-	_, err := db.Exec(
+func CreateTask(task *Task) error {
+	conn, err := db.Init()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	_, err = conn.Exec(
 		`INSERT INTO tasks (
                                    uuid, 
                                    title, 
