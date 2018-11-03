@@ -222,3 +222,20 @@ func UpdateTask(task *Task, taskUUID string) error {
 	}
 	return nil
 }
+
+func DeleteTask(taskUUID string) error {
+	conn, err := db.Init()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	_, err = conn.Exec(
+		`DELETE FROM tasks 
+                 WHERE uuid = ?`,
+		taskUUID,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}

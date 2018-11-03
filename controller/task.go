@@ -84,5 +84,17 @@ func PutTask(w http.ResponseWriter, r *http.Request) {
 		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("get task error: %v", err)})
 		return
 	}
-	view.RenderTask(w, updatedTask, http.StatusAccepted)
+	view.RenderTask(w, updatedTask, http.StatusOK)
+}
+
+func DeleteTask(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	taskUUID := params["uuid"]
+
+	err := model.DeleteTask(taskUUID)
+	if err != nil {
+		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("create task error: %v", err)})
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
