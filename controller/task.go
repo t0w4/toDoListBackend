@@ -22,7 +22,7 @@ func GetTasks(w http.ResponseWriter, r *http.Request) {
 
 func GetTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	task, err := model.GetTask(params["id"])
+	task, err := model.GetTask(params["uuid"])
 	if err != nil {
 		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("get tasks error: %v", err)})
 		return
@@ -55,4 +55,34 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	view.RenderTask(w, createdTask, http.StatusCreated)
+}
+
+func PutTask(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	taskUUID := params["uuid"]
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		view.RenderBadRequest(w, []string{fmt.Sprintf("read post body error: %v", err)})
+		return
+	}
+
+	var task model.Task
+	err = json.Unmarshal(body, &task)
+	if err != nil {
+		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("json parse error: %v", err)})
+		return
+	}
+
+	err = model.UpdateTask(&task, taskUUID)
+	if err != nil {
+		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("create task error: %v", err)})
+		return
+	}
+	updatedTask, err := model.GetTask(taskUUID)
+	if err != nil {
+		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("get task error: %v", err)})
+		return
+	}
+	view.RenderTask(w, updatedTask, http.StatusAccepted)
 }

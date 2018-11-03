@@ -197,3 +197,28 @@ func GetTaskByID(taskID int64) (*Task, error) {
 
 	return &task, nil
 }
+
+func UpdateTask(task *Task, taskUUID string) error {
+	conn, err := db.Init()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	_, err = conn.Exec(
+		`UPDATE tasks 
+                   SET title = ?, 
+                       detail = ?, 
+                       status = ?,
+                       updated_at = ?
+                 WHERE uuid = ?`,
+		task.Title,
+		task.Detail,
+		task.Status,
+		time.Now(),
+		taskUUID,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
