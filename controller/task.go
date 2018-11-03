@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"toDoListBackend/model"
 	"toDoListBackend/view"
+
+	"github.com/gorilla/mux"
 )
 
 func GetTasks(w http.ResponseWriter, r *http.Request) {
@@ -16,6 +18,16 @@ func GetTasks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	view.RenderTasks(w, tasks)
+}
+
+func GetTask(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	task, err := model.GetTask(params["id"])
+	if err != nil {
+		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("get tasks error: %v", err)})
+		return
+	}
+	view.RenderTask(w, task)
 }
 
 func CreateTask(w http.ResponseWriter, r *http.Request) {

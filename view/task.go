@@ -21,3 +21,13 @@ func RenderTasks(w http.ResponseWriter, tasks []*model.Task) {
 	}
 	fmt.Fprintln(w, string(s))
 }
+
+func RenderTask(w http.ResponseWriter, task *model.Task) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	s, err := json.Marshal(task)
+	if err != nil {
+		RenderInternalServerError(w, 500, []string{"cant't encode task response json"})
+		return
+	}
+	fmt.Fprintln(w, string(s))
+}

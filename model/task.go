@@ -72,6 +72,53 @@ func GetTasks() ([]*Task, error) {
 	return tasks, nil
 }
 
+func GetTask(taskID string) (*Task, error) {
+	conn, err := db.Init()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
+	var task Task
+	var createdDatetime string
+	var updateDatetime string
+
+	err = conn.QueryRow(`
+      SELECT 
+        id,                               
+        uuid, 
+        title, 
+        detail, 
+        status,
+        created_at, 
+        updated_at 
+       from tasks
+       where uuid = ?`,
+		taskID).Scan(
+		&(task.ID),
+		&(task.UUID),
+		&(task.Title),
+		&(task.Detail),
+		&(task.Status),
+		&createdDatetime,
+		&updateDatetime,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	task.CreatedAt, err = time.Parse("2006-01-02 15:04:05", createdDatetime) // 日時はこの日付じゃないといけない
+	if err != nil {
+		return nil, err
+	}
+	task.UpdatedAt, err = time.Parse("2006-01-02 15:04:05", updateDatetime) // 日時はこの日付じゃないといけない
+	if err != nil {
+		return nil, err
+	}
+
+	return &task, nil
+}
+
 func CreateTask(task *Task) error {
 	conn, err := db.Init()
 	if err != nil {
