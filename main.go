@@ -5,10 +5,13 @@ import (
 	"net/http"
 	"os"
 	"toDoListBackend/controller"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
-	http.HandleFunc("/tasks", controller.TaskHandler)
-	log.Print(http.ListenAndServe("localhost:8080", nil))
+	router := mux.NewRouter()
+	router.HandleFunc("/tasks", controller.TaskHandler)
+	log.Print(http.ListenAndServe("localhost:8080", router))
 	os.Exit(1)
 }
