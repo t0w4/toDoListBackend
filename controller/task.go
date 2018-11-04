@@ -20,10 +20,21 @@ func GetTasks(w http.ResponseWriter, r *http.Request) {
 	view.RenderTasks(w, tasks)
 }
 
-// TODO: add record exists check(404)
+// GetTask は path に含まれる uuid に一致する tasks テーブルの レコードを返す
 func GetTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	task, err := model.GetTask(params["uuid"])
+	taskUUID := params["uuid"]
+	exist, err := model.CheckTaskExist(taskUUID)
+	if err != nil {
+		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("check task exist error: %v", err)})
+		return
+	}
+	if !exist {
+		view.RenderNotFound(w, "tasks", taskUUID)
+		return
+	}
+
+	task, err := model.GetTask(taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("get tasks error: %v", err)})
 		return
@@ -58,10 +69,18 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 	view.RenderTask(w, createdTask, http.StatusCreated)
 }
 
-// TODO: add record exists check(404)
 func PutTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	taskUUID := params["uuid"]
+	exist, err := model.CheckTaskExist(taskUUID)
+	if err != nil {
+		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("check task exist error: %v", err)})
+		return
+	}
+	if !exist {
+		view.RenderNotFound(w, "tasks", taskUUID)
+		return
+	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -89,12 +108,20 @@ func PutTask(w http.ResponseWriter, r *http.Request) {
 	view.RenderTask(w, updatedTask, http.StatusOK)
 }
 
-// TODO: add record exists check(404)
 func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	taskUUID := params["uuid"]
+	exist, err := model.CheckTaskExist(taskUUID)
+	if err != nil {
+		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("check task exist error: %v", err)})
+		return
+	}
+	if !exist {
+		view.RenderNotFound(w, "tasks", taskUUID)
+		return
+	}
 
-	err := model.DeleteTask(taskUUID)
+	err = model.DeleteTask(taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, http.StatusInternalServerError, []string{fmt.Sprintf("create task error: %v", err)})
 		return

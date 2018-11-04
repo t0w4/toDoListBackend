@@ -119,6 +119,32 @@ func GetTask(taskUUID string) (*Task, error) {
 	return &task, nil
 }
 
+func CheckTaskExist(taskUUID string) (bool, error) {
+	conn, err := db.Init()
+	if err != nil {
+		return false, err
+	}
+	defer conn.Close()
+
+	var fetchRecordCount int
+	err = conn.QueryRow(`
+      SELECT
+       count(*)
+       from tasks
+       where uuid = ?`,
+		taskUUID).Scan(
+		&fetchRecordCount,
+	)
+	if err != nil {
+		return false, err
+	}
+
+	if fetchRecordCount > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
 func CreateTask(task *Task) (int64, error) {
 	conn, err := db.Init()
 	if err != nil {
