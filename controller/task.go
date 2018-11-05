@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"toDoListBackend/model"
-	"toDoListBackend/view"
+
+	"github.com/t0w4/toDoListBackend/model"
+	"github.com/t0w4/toDoListBackend/view"
 
 	"github.com/gorilla/mux"
 )

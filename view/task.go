@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"toDoListBackend/model"
+
+	"github.com/t0w4/toDoListBackend/model"
 )
 
 type tasksResponse struct {

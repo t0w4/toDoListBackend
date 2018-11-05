@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"toDoListBackend/db"
+	"github.com/t0w4/toDoListBackend/db"
 
 	"github.com/google/uuid"
 )

@@ -4,7 +4,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"toDoListBackend/controller"
+
+	"github.com/t0w4/toDoListBackend/controller"
 
 	"github.com/gorilla/mux"
 )
