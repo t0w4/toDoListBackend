@@ -17,6 +17,6 @@ func main() {
 	router.HandleFunc("/tasks/{uuid}", controller.GetTask).Methods(http.MethodGet)
 	router.HandleFunc("/tasks/{uuid}", controller.PutTask).Methods(http.MethodPut)
 	router.HandleFunc("/tasks/{uuid}", controller.DeleteTask).Methods(http.MethodDelete)
-	log.Print(http.ListenAndServe("localhost:8080", router))
+	log.Print(http.ListenAndServe("0.0.0.0:8080", router))
 	os.Exit(1)
 }
