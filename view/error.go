@@ -18,6 +18,7 @@ type errorResponse struct {
 
 func RenderInternalServerError(w http.ResponseWriter, statusCode int, messages []string) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(statusCode)
 	enc := json.NewEncoder(w)
 	enc.Encode(&errorsResponse{Status: "internal server error", ErrorMessages: messages})

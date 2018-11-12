@@ -15,6 +15,7 @@ type tasksResponse struct {
 
 func RenderTasks(w http.ResponseWriter, tasks []*model.Task) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(http.StatusOK)
 	s, err := json.Marshal(tasksResponse{Total: len(tasks), Tasks: tasks})
 	if err != nil {
@@ -26,6 +27,7 @@ func RenderTasks(w http.ResponseWriter, tasks []*model.Task) {
 
 func RenderTask(w http.ResponseWriter, task *model.Task, statusCode int) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(statusCode)
 	s, err := json.Marshal(task)
 	if err != nil {
