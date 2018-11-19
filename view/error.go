@@ -26,6 +26,7 @@ func RenderInternalServerError(w http.ResponseWriter, statusCode int, messages [
 
 func RenderBadRequest(w http.ResponseWriter, messages []string) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(http.StatusBadRequest)
 	enc := json.NewEncoder(w)
 	enc.Encode(&errorsResponse{Status: "bad request", ErrorMessages: messages})
@@ -33,6 +34,7 @@ func RenderBadRequest(w http.ResponseWriter, messages []string) {
 
 func RenderNotFound(w http.ResponseWriter, tableName string, uuid string) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(http.StatusNotFound)
 	enc := json.NewEncoder(w)
 	enc.Encode(&errorResponse{
