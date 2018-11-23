@@ -12,7 +12,7 @@ import (
 
 func main() {
 	router := mux.NewRouter()
-	router.HandleFunc("/tasks", controller.CreateTask).Methods(http.MethodPost)
+	router.HandleFunc("/tasks", controller.CreateTask).Methods(http.MethodPost, http.MethodOptions)
 	router.HandleFunc("/tasks", controller.GetTasks).Methods(http.MethodGet)
 	router.HandleFunc("/tasks/{uuid}", controller.GetTask).Methods(http.MethodGet)
 	router.HandleFunc("/tasks/{uuid}", controller.PutTask).Methods(http.MethodPut)
