@@ -6,10 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/t0w4/toDoListBackend/model"
 	"github.com/t0w4/toDoListBackend/view"
-
-	"github.com/gorilla/mux"
 )
 
 func GetTasks(w http.ResponseWriter, r *http.Request) {
