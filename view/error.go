@@ -16,12 +16,12 @@ type errorResponse struct {
 	ErrorMessage string `json:"error_message"`
 }
 
-func RenderInternalServerError(w http.ResponseWriter, statusCode int, messages []string) {
+func RenderInternalServerError(w http.ResponseWriter, message string) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.WriteHeader(statusCode)
+	w.WriteHeader(http.StatusInternalServerError)
 	enc := json.NewEncoder(w)
-	enc.Encode(&errorsResponse{Status: "internal server error", ErrorMessages: messages})
+	enc.Encode(&errorResponse{Status: "internal server error", ErrorMessage: message})
 }
 
 func RenderBadRequest(w http.ResponseWriter, messages []string) {

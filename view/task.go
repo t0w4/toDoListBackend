@@ -19,7 +19,7 @@ func RenderTasks(w http.ResponseWriter, tasks []*model.Task) {
 	w.WriteHeader(http.StatusOK)
 	s, err := json.Marshal(tasksResponse{Total: len(tasks), Tasks: tasks})
 	if err != nil {
-		RenderInternalServerError(w, 500, []string{"cant't encode tasks response json"})
+		RenderInternalServerError(w, "cant't encode tasks response json")
 		return
 	}
 	fmt.Fprintln(w, string(s))
@@ -31,7 +31,7 @@ func RenderTask(w http.ResponseWriter, task *model.Task, statusCode int) {
 	w.WriteHeader(statusCode)
 	s, err := json.Marshal(task)
 	if err != nil {
-		RenderInternalServerError(w, 500, []string{"cant't encode task response json"})
+		RenderInternalServerError(w, "cant't encode task response json")
 		return
 	}
 	fmt.Fprintln(w, string(s))
