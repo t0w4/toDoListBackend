@@ -32,6 +32,9 @@ func getConnectionString() string {
 	user := getParamString("MYSQL_USER", "root")
 	pass := getParamString("MYSQL_PASSWORD", "")
 	dbname := getParamString("MYSQL_DB", "todoList")
+	if os.Getenv("APP_ENV") == "test" {
+		dbname = strings.Join([]string{dbname, "_test"}, "")
+	}
 	protocol := getParamString("MYSQL_PROTOCOL", "tcp")
 	dbargs := getParamString("MYSQL_DBARGS", " ")
 
