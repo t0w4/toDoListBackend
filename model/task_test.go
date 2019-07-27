@@ -1,12 +1,15 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/t0w4/toDoListBackend/db"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
@@ -212,7 +215,9 @@ func TestCreateTask(t *testing.T) {
 			tt.before()
 		}
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := CreateTask(tt.args.task)
+			conn, err := db.Init()
+			ctx := context.Background()
+			got, err := CreateTask(ctx, conn, tt.args.task)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CreateTask() error = %v, wantErr %v", err, tt.wantErr)
 				return
