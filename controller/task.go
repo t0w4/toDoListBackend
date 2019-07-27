@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -11,8 +13,16 @@ import (
 	"github.com/t0w4/toDoListBackend/view"
 )
 
-func GetTasks(w http.ResponseWriter, r *http.Request) {
-	tasks, err := model.GetTasks()
+// TaskController require *sql.Db to initialize
+// This controller hove CRUD methods
+type TaskController struct {
+	Db *sql.DB
+}
+
+// GetTasks return All Tasks
+func (tc *TaskController) GetTasks(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	tasks, err := model.GetTasks(ctx, tc.Db)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("get tasks error: %v", err))
 		return
@@ -21,10 +31,11 @@ func GetTasks(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetTask は path に含まれる uuid に一致する tasks テーブルの レコードを返す
-func GetTask(w http.ResponseWriter, r *http.Request) {
+func (tc *TaskController) GetTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	taskUUID := params["uuid"]
-	exist, err := model.CheckTaskExist(taskUUID)
+	ctx := context.Background()
+	exist, err := model.CheckTaskExist(ctx, tc.Db, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("check task exist error: %v", err))
 		return
@@ -34,7 +45,7 @@ func GetTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := model.GetTask(taskUUID)
+	task, err := model.GetTask(ctx, tc.Db, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("get tasks error: %v", err))
 		return
@@ -42,7 +53,8 @@ func GetTask(w http.ResponseWriter, r *http.Request) {
 	view.RenderTask(w, task, http.StatusOK)
 }
 
-func CreateTask(w http.ResponseWriter, r *http.Request) {
+// CreateTask create new Task, and return that Task
+func (tc *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -62,12 +74,13 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	insertID, err := model.CreateTask(&task)
+	ctx := context.Background()
+	insertID, err := model.CreateTask(ctx, tc.Db, &task)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("create task error: %v", err))
 		return
 	}
-	createdTask, err := model.GetTaskByID(insertID)
+	createdTask, err := model.GetTaskByID(ctx, tc.Db, insertID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("get task error: %v", err))
 		return
@@ -75,10 +88,12 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 	view.RenderTask(w, createdTask, http.StatusCreated)
 }
 
-func PutTask(w http.ResponseWriter, r *http.Request) {
+// PutTask replace specified Task, and return that Task
+func (tc *TaskController) PutTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	taskUUID := params["uuid"]
-	exist, err := model.CheckTaskExist(taskUUID)
+	ctx := context.Background()
+	exist, err := model.CheckTaskExist(ctx, tc.Db, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("check task exist error: %v", err))
 		return
@@ -101,12 +116,12 @@ func PutTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = model.UpdateTask(&task, taskUUID)
+	err = model.UpdateTask(ctx, tc.Db, &task, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("create task error: %v", err))
 		return
 	}
-	updatedTask, err := model.GetTask(taskUUID)
+	updatedTask, err := model.GetTask(ctx, tc.Db, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("get task error: %v", err))
 		return
@@ -114,7 +129,8 @@ func PutTask(w http.ResponseWriter, r *http.Request) {
 	view.RenderTask(w, updatedTask, http.StatusOK)
 }
 
-func DeleteTask(w http.ResponseWriter, r *http.Request) {
+// DeleteTask delete specified Task, and return only status code
+func (tc *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -124,7 +140,8 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 	}
 	params := mux.Vars(r)
 	taskUUID := params["uuid"]
-	exist, err := model.CheckTaskExist(taskUUID)
+	ctx := context.Background()
+	exist, err := model.CheckTaskExist(ctx, tc.Db, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("check task exist error: %v", err))
 		return
@@ -134,7 +151,7 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = model.DeleteTask(taskUUID)
+	err = model.DeleteTask(ctx, tc.Db, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("create task error: %v", err))
 		return

@@ -1,9 +1,9 @@
 package model
 
 import (
+	"context"
+	"database/sql"
 	"time"
-
-	"github.com/t0w4/toDoListBackend/db"
 
 	"github.com/google/uuid"
 )
@@ -18,16 +18,16 @@ type Task struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func GetTasks() ([]*Task, error) {
-	conn, err := db.Init()
+func GetTasks(ctx context.Context, db *sql.DB) ([]*Task, error) {
+	conn, err := db.Conn(ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
 
 	var tasks []*Task
-
-	rows, err := conn.Query(`
+	rows, err := conn.QueryContext(
+		ctx,
+		`
       SELECT 
         id,                               
         uuid, 
@@ -72,18 +72,18 @@ func GetTasks() ([]*Task, error) {
 	return tasks, nil
 }
 
-func GetTask(taskUUID string) (*Task, error) {
-	conn, err := db.Init()
+func GetTask(ctx context.Context, db *sql.DB, taskUUID string) (*Task, error) {
+	conn, err := db.Conn(ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
-
 	var task Task
 	var createdDatetime string
 	var updateDatetime string
 
-	err = conn.QueryRow(`
+	err = conn.QueryRowContext(
+		ctx,
+		`
       SELECT 
         id,                               
         uuid, 
@@ -119,15 +119,15 @@ func GetTask(taskUUID string) (*Task, error) {
 	return &task, nil
 }
 
-func CheckTaskExist(taskUUID string) (bool, error) {
-	conn, err := db.Init()
+func CheckTaskExist(ctx context.Context, db *sql.DB, taskUUID string) (bool, error) {
+	conn, err := db.Conn(ctx)
 	if err != nil {
 		return false, err
 	}
-	defer conn.Close()
-
 	var fetchRecordCount int
-	err = conn.QueryRow(`
+	err = conn.QueryRowContext(
+		ctx,
+		`
       SELECT
        count(*)
        from tasks
@@ -145,13 +145,13 @@ func CheckTaskExist(taskUUID string) (bool, error) {
 	return false, nil
 }
 
-func CreateTask(task *Task) (int64, error) {
-	conn, err := db.Init()
+func CreateTask(ctx context.Context, db *sql.DB, task *Task) (int64, error) {
+	conn, err := db.Conn(ctx)
 	if err != nil {
 		return 0, err
 	}
-	defer conn.Close()
-	result, err := conn.Exec(
+	result, err := conn.ExecContext(
+		ctx,
 		`INSERT INTO tasks (
                                    uuid, 
                                    title, 
@@ -177,18 +177,18 @@ func CreateTask(task *Task) (int64, error) {
 	return lastInsertID, nil
 }
 
-func GetTaskByID(taskID int64) (*Task, error) {
-	conn, err := db.Init()
+func GetTaskByID(ctx context.Context, db *sql.DB, taskID int64) (*Task, error) {
+	conn, err := db.Conn(ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
-
 	var task Task
 	var createdDatetime string
 	var updateDatetime string
 
-	err = conn.QueryRow(`
+	err = conn.QueryRowContext(
+		ctx,
+		`
       SELECT 
         id,                               
         uuid, 
@@ -224,13 +224,13 @@ func GetTaskByID(taskID int64) (*Task, error) {
 	return &task, nil
 }
 
-func UpdateTask(task *Task, taskUUID string) error {
-	conn, err := db.Init()
+func UpdateTask(ctx context.Context, db *sql.DB, task *Task, taskUUID string) error {
+	conn, err := db.Conn(ctx)
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
-	_, err = conn.Exec(
+	_, err = conn.ExecContext(
+		ctx,
 		`UPDATE tasks 
                    SET title = ?, 
                        detail = ?, 
@@ -249,13 +249,13 @@ func UpdateTask(task *Task, taskUUID string) error {
 	return nil
 }
 
-func DeleteTask(taskUUID string) error {
-	conn, err := db.Init()
+func DeleteTask(ctx context.Context, db *sql.DB, taskUUID string) error {
+	conn, err := db.Conn(ctx)
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
-	_, err = conn.Exec(
+	_, err = conn.ExecContext(
+		ctx,
 		`DELETE FROM tasks 
                  WHERE uuid = ?`,
 		taskUUID,
