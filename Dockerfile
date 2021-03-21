@@ -1,4 +1,4 @@
-FROM golang:1.11.2-alpine3.8 AS build
+FROM golang:1.16.2-alpine3.13 AS build
 
 WORKDIR /
 COPY . /go/src/github.com/t0w4/toDoListBackend
