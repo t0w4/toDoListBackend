@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -21,8 +20,7 @@ type TaskController struct {
 
 // GetTasks return All Tasks
 func (tc *TaskController) GetTasks(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-	tasks, err := model.GetTasks(ctx, tc.Db)
+	tasks, err := model.GetTasks(r.Context(), tc.Db)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("get tasks error: %v", err))
 		return
@@ -34,8 +32,7 @@ func (tc *TaskController) GetTasks(w http.ResponseWriter, r *http.Request) {
 func (tc *TaskController) GetTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	taskUUID := params["uuid"]
-	ctx := context.Background()
-	exist, err := model.CheckTaskExist(ctx, tc.Db, taskUUID)
+	exist, err := model.CheckTaskExist(r.Context(), tc.Db, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("check task exist error: %v", err))
 		return
@@ -45,7 +42,7 @@ func (tc *TaskController) GetTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := model.GetTask(ctx, tc.Db, taskUUID)
+	task, err := model.GetTask(r.Context(), tc.Db, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("get tasks error: %v", err))
 		return
@@ -74,13 +71,12 @@ func (tc *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := context.Background()
-	insertID, err := model.CreateTask(ctx, tc.Db, &task)
+	insertID, err := model.CreateTask(r.Context(), tc.Db, &task)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("create task error: %v", err))
 		return
 	}
-	createdTask, err := model.GetTaskByID(ctx, tc.Db, insertID)
+	createdTask, err := model.GetTaskByID(r.Context(), tc.Db, insertID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("get task error: %v", err))
 		return
@@ -92,8 +88,8 @@ func (tc *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 func (tc *TaskController) PutTask(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	taskUUID := params["uuid"]
-	ctx := context.Background()
-	exist, err := model.CheckTaskExist(ctx, tc.Db, taskUUID)
+
+	exist, err := model.CheckTaskExist(r.Context(), tc.Db, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("check task exist error: %v", err))
 		return
@@ -116,12 +112,12 @@ func (tc *TaskController) PutTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = model.UpdateTask(ctx, tc.Db, &task, taskUUID)
+	err = model.UpdateTask(r.Context(), tc.Db, &task, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("create task error: %v", err))
 		return
 	}
-	updatedTask, err := model.GetTask(ctx, tc.Db, taskUUID)
+	updatedTask, err := model.GetTask(r.Context(), tc.Db, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("get task error: %v", err))
 		return
@@ -140,8 +136,8 @@ func (tc *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	}
 	params := mux.Vars(r)
 	taskUUID := params["uuid"]
-	ctx := context.Background()
-	exist, err := model.CheckTaskExist(ctx, tc.Db, taskUUID)
+
+	exist, err := model.CheckTaskExist(r.Context(), tc.Db, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("check task exist error: %v", err))
 		return
@@ -151,7 +147,7 @@ func (tc *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = model.DeleteTask(ctx, tc.Db, taskUUID)
+	err = model.DeleteTask(r.Context(), tc.Db, taskUUID)
 	if err != nil {
 		view.RenderInternalServerError(w, fmt.Sprintf("create task error: %v", err))
 		return
